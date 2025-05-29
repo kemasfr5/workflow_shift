@@ -38,7 +38,6 @@ class _AuthScreenState extends State<AuthScreen> {
       if (_isLogin) {
         final userCredential = await _firebase.signInWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        print('Login Succeed');
       } else {
         final userCredential = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
@@ -48,7 +47,6 @@ class _AuthScreenState extends State<AuthScreen> {
             .set(
           {'email': _enteredEmail, 'name': _enteredName, 'role': _enteredRole},
         );
-        print('Sign Up Succeed');
       }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -175,6 +173,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 setState(() {
                                   _isLogin = !_isLogin;
                                 });
+                                _formKey.currentState!.reset();
                               },
                               child: Text(_isLogin
                                   ? 'Create an Account'

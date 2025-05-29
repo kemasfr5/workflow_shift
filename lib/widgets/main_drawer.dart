@@ -11,35 +11,52 @@ class MainDrawer extends StatelessWidget {
       child: Column(
         children: [
           DrawerHeader(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.blueGrey,
-                    Colors.blue,
-                  ],
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_month_outlined),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    'MyShiftSchedule',
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.secondary),
-                  ),
+            padding: EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.blueGrey,
+                  Colors.blue,
                 ],
-              )),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.calendar_month_outlined),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  'MyShiftSchedule',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge!
+                      .copyWith(color: Theme.of(context).colorScheme.secondary),
+                ),
+              ],
+            ),
+          ),
           ListTile(
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
               onSelectScreen('Home');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.groups),
+            title: Text('Role'),
+            onTap: () {
+              onSelectScreen('Role');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.exit_to_app),
+            title: Text('Sign Out'),
+            onTap: () {
+              onSelectScreen('SignOut');
             },
           ),
         ],

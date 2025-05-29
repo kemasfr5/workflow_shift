@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:workflow_shift/screens/manage_role.dart';
 import 'package:workflow_shift/widgets/main_drawer.dart';
 import 'package:workflow_shift/widgets/schedule_list_by_date.dart';
-import 'package:intl/intl.dart';
 
 class ScheduleSummaryScreen extends StatelessWidget {
   const ScheduleSummaryScreen({super.key});
@@ -11,6 +11,15 @@ class ScheduleSummaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     void _setScreen(String identifier) {
       Navigator.of(context).pop();
+      if (identifier == 'Role') {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ManageRole(),
+          ),
+        );
+      } else if (identifier == 'SignOut') {
+        FirebaseAuth.instance.signOut();
+      }
     }
 
     final now = DateTime.now();
@@ -19,14 +28,7 @@ class ScheduleSummaryScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text('WORKFLOW SHIFT'),
-          actions: [
-            IconButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-              },
-              icon: Icon(Icons.exit_to_app),
-            ),
-          ],
+          centerTitle: true,
         ),
         drawer: MainDrawer(onSelectScreen: _setScreen),
         body: TabBarView(

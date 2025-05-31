@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:workflow_shift/screens/manage_role.dart';
+import 'package:workflow_shift/screens/manage_user.dart';
 import 'package:workflow_shift/widgets/main_drawer.dart';
 import 'package:workflow_shift/widgets/schedule_list_by_date.dart';
 
@@ -15,6 +16,12 @@ class ScheduleSummaryScreen extends StatelessWidget {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => ManageRole(),
+          ),
+        );
+      } else if (identifier == 'User') {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ManageUser(),
           ),
         );
       } else if (identifier == 'SignOut') {

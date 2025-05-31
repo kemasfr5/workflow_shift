@@ -46,10 +46,17 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Icon(Icons.groups),
+            leading: Icon(Icons.group_work),
             title: Text('Role'),
             onTap: () {
               onSelectScreen('Role');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.group),
+            title: Text('User'),
+            onTap: () {
+              onSelectScreen('User');
             },
           ),
           ListTile(

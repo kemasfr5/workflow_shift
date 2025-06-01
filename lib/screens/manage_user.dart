@@ -1,5 +1,11 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:workflow_shift/widgets/user_detail.dart';
 
 class ManageUser extends StatefulWidget {
   const ManageUser({super.key});
@@ -9,8 +15,24 @@ class ManageUser extends StatefulWidget {
 }
 
 class _ManageUserState extends State<ManageUser> {
+  Timer? deleteTimer;
+  final storageRef = FirebaseStorage.instance.ref();
   var isSearch = false;
   var enteredSearch = '';
+
+  void deleteData(data) async {
+    // final userImageRef =
+    // storageRef.child("user_image/${data.reference.id}.jpg");
+    // await userImageRef.delete();
+    deleteTimer = Timer(
+      Duration(seconds: 3),
+      () async {
+        await FirebaseStorage.instance.refFromURL(data['image']).delete();
+        await data.reference.delete();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,18 +106,28 @@ class _ManageUserState extends State<ManageUser> {
                     key: Key(filteredData[index].reference.id),
                     onDismissed: (direction) {
                       final deletedUser = filteredData[index];
-                      filteredData[index].reference.delete();
+                      // final File deletedImage = File(deletedUser['image']);
+
+                      deleteData(filteredData[index]);
                       ScaffoldMessenger.of(context).clearSnackBars();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('${deletedUser['name']} Deleted'),
+                          duration: Duration(seconds: 3),
                           action: SnackBarAction(
                             label: 'Undo',
                             onPressed: () {
                               setState(() {
-                                FirebaseFirestore.instance
-                                    .collection('role')
-                                    .add(deletedUser.data());
+                                deleteTimer?.cancel();
+                                print('Delete Cancel.');
+                                // FirebaseFirestore.instance
+                                //     .collection('role')
+                                //     .add(deletedUser.data());
+                                // final storageRef = FirebaseStorage.instance
+                                //     .ref()
+                                //     .child("user_image")
+                                //     .child('${deletedUser['image']}.jpg');
+                                // storageRef.putFile(deletedImage);
                               });
                             },
                           ),
@@ -123,16 +155,22 @@ class _ManageUserState extends State<ManageUser> {
                       title: Row(
                         children: [
                           Expanded(
+                            child: CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Colors.grey,
+                              foregroundImage: NetworkImage(
+                                filteredData[index]['image'],
+                              ),
+                            ),
+                          ),
+                          Expanded(
                             flex: 2,
                             child: Text(filteredData[index]['name']),
                           ),
-                          // (MediaQuery.of(context).size.width / 4).toInt()),
                           Expanded(
                             flex: 1,
                             child: Text(filteredData[index]['role']),
-                            // textAlign: TextAlign.left,
                           ),
-
                           Icon(Icons.arrow_right)
                         ],
                       ),
@@ -146,29 +184,7 @@ class _ManageUserState extends State<ManageUser> {
                           ),
                           context: context,
                           builder: (context) {
-                            return SizedBox(
-                              width: double.infinity,
-                              height: MediaQuery.of(context).size.height * 0.6,
-                              child: SingleChildScrollView(
-                                child: Padding(
-                                  padding: EdgeInsets.all(20),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                          'Name: ${filteredData[index]['name']}'),
-                                      Text(
-                                          'Role: ${filteredData[index]['role']}'),
-                                      Text(
-                                          'Email: ${filteredData[index]['email']}'),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
+                            return UserDetail(data: filteredData[index]);
                           },
                         );
                       },

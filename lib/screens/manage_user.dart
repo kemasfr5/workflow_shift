@@ -121,7 +121,7 @@ class _ManageUserState extends State<ManageUser> {
                                 deleteTimer?.cancel();
                                 print('Delete Cancel.');
                                 // FirebaseFirestore.instance
-                                //     .collection('role')
+                                //     .collection('user')
                                 //     .add(deletedUser.data());
                                 // final storageRef = FirebaseStorage.instance
                                 //     .ref()

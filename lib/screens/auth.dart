@@ -18,14 +18,32 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _getRoles();
+  }
+
   final _formKey = GlobalKey<FormState>();
   bool _isLogin = true;
   bool _isAuthenticating = false;
   var _enteredEmail = '';
   var _enteredName = '';
-  var _enteredRole = '';
+  var _selectedRole = '';
   var _enteredPassword = '';
   File? _selectedImage;
+  List<String> roles = [];
+
+  void _getRoles() async {
+    await FirebaseFirestore.instance.collection('role').get().then(
+      (value) {
+        for (var documentSnapshot in value.docs) {
+          // print(documentSnapshot.data()['title']);
+          roles.add(documentSnapshot.data()['title']);
+        }
+      },
+    );
+  }
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
@@ -61,7 +79,7 @@ class _AuthScreenState extends State<AuthScreen> {
           {
             'email': _enteredEmail,
             'name': _enteredName,
-            'role': _enteredRole,
+            'role': _selectedRole,
             'image': imageUrl,
           },
         );
@@ -141,20 +159,26 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                         if (!_isLogin)
-                          TextFormField(
-                            decoration: InputDecoration(
-                              label: Text('Role'),
-                            ),
-                            autocorrect: true,
-                            keyboardType: TextInputType.text,
+                          DropdownButtonFormField(
+                            decoration: InputDecoration(label: Text('Role')),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Role cannot be empty.';
+                                return;
                               }
-                              return null;
                             },
-                            onSaved: (value) {
-                              _enteredRole = value!;
+                            items: roles
+                                .map(
+                                  (e) => DropdownMenuItem<String>(
+                                    value: e,
+                                    child: Text(e),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                print(roles);
+                                _selectedRole = value!;
+                              });
                             },
                           ),
                         TextFormField(

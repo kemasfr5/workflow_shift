@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multi_dropdown.dart';
 
@@ -13,6 +14,10 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   final controller = MultiSelectController<String>();
 
   DateTime selectedDate = DateTime.now();
+  List<String> selectedEmployees = [];
+  String enteredNotes = '';
+  var isAdding = false;
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -23,6 +28,45 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
       setState(() {
         selectedDate = picked;
       });
+    }
+  }
+
+  void submit() async {
+    final isValid = _form.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+    setState(() {
+      isAdding = true;
+    });
+    _form.currentState!.save();
+    try {
+      await FirebaseFirestore.instance
+          .collection('schedule')
+          .doc(selectedDate.toString())
+          .set(
+        {
+          'date': selectedDate,
+          'employees': selectedEmployees,
+          'notes': enteredNotes,
+        },
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.of(context).pop();
+    } on FirebaseException catch (e) {
+      setState(() {
+        isAdding = false;
+      });
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'There is something wrong'),
+        ),
+      );
     }
   }
 
@@ -62,6 +106,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
         value: 'Vera Setiawati',
       ),
     ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Schedule'),
@@ -77,17 +122,18 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   width: 200,
                   height: 50,
                   child: TextButton.icon(
-                      label: Text(
-                        "${selectedDate.toLocal()}".split(' ')[0],
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      icon: Icon(
-                        Icons.calendar_today,
-                        size: 25,
-                      ),
-                      onPressed: () {
-                        _selectDate(context);
-                      }),
+                    label: Text(
+                      "${selectedDate.toLocal()}".split(' ')[0],
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    icon: Icon(
+                      Icons.calendar_today,
+                      size: 25,
+                    ),
+                    onPressed: () {
+                      _selectDate(context);
+                    },
+                  ),
                 ),
                 MultiDropdown<String>(
                   items: items,
@@ -122,7 +168,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                     header: Padding(
                       padding: EdgeInsets.all(8),
                       child: Text(
-                        'Select countries from the list',
+                        'Select employees from the list',
                         textAlign: TextAlign.start,
                         style: TextStyle(
                           fontSize: 16,
@@ -144,22 +190,28 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   },
                   onSelectionChange: (selectedItems) {
                     debugPrint("OnSelectionChange: $selectedItems");
+                    selectedEmployees = selectedItems;
                   },
                 ),
-                TextField(
+                TextFormField(
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
                     label: Text('Notes'),
                   ),
+                  onSaved: (notes) {
+                    enteredNotes = notes ?? '';
+                  },
                 ),
                 SizedBox(
                   height: 12,
                 ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Submit'),
-                ),
+                if (!isAdding)
+                  ElevatedButton(
+                    onPressed: submit,
+                    child: Text('Submit'),
+                  ),
+                if (isAdding) CircularProgressIndicator(),
               ],
             ),
           ),

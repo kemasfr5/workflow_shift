@@ -60,6 +60,13 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: Icon(Icons.schedule),
+            title: Text('Schedule'),
+            onTap: () {
+              onSelectScreen('Schedule');
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.exit_to_app),
             title: Text('Sign Out'),
             onTap: () {

@@ -163,8 +163,9 @@ class _AuthScreenState extends State<AuthScreen> {
                             decoration: InputDecoration(label: Text('Role')),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return;
+                                return 'Please choose role';
                               }
+                              return null;
                             },
                             items: roles
                                 .map(
@@ -176,7 +177,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                 .toList(),
                             onChanged: (value) {
                               setState(() {
-                                print(roles);
                                 _selectedRole = value!;
                               });
                             },

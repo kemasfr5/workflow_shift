@@ -10,13 +10,28 @@ class AddScheduleScreen extends StatefulWidget {
 }
 
 class _AddScheduleScreenState extends State<AddScheduleScreen> {
+  late DateTime selectedDate;
+  final TextEditingController _notesController = TextEditingController();
+
   final _form = GlobalKey<FormState>();
   final controller = MultiSelectController<String>();
 
-  DateTime selectedDate = DateTime.now();
+  List<DropdownItem<String>> userItems = [];
   List<String> selectedEmployees = [];
   String enteredNotes = '';
   var isAdding = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    selectedDate = DateTime(now.year, now.month, now.day);
+    loadUsers().then(
+      (_) {
+        _getInputByDate();
+      },
+    );
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -29,6 +44,39 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
         selectedDate = picked;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _getInputByDate() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('schedule')
+        .doc(selectedDate.toString())
+        .get();
+    final docMap = doc.data();
+    // debugPrint(docMap.toString());
+    controller.clearAll();
+    if (docMap != null) {
+      controller.selectWhere(
+          (element) => docMap['employees'].contains(element.value));
+      _notesController.text = docMap['notes'];
+    } else {
+      _notesController.text = '';
+    }
+  }
+
+  Future<void> loadUsers() async {
+    final snapshot = await FirebaseFirestore.instance.collection('users').get();
+    setState(() {
+      userItems = snapshot.docs.map((doc) {
+        final String name = doc.data()['name'] ?? '';
+        return DropdownItem<String>(label: name, value: name);
+      }).toList();
+    });
   }
 
   void submit() async {
@@ -50,6 +98,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
           'employees': selectedEmployees,
           'notes': enteredNotes,
         },
+        SetOptions(merge: true),
       );
 
       if (!mounted) {
@@ -72,41 +121,6 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var items = [
-      DropdownItem(
-        label: 'Kemas Fachir Raihan',
-        value: 'Kemas Fachir Raihan',
-      ),
-      DropdownItem(
-        label: 'Masayu Savira Amalia',
-        value: 'Masayu Savira Amalia',
-      ),
-      DropdownItem(
-        label: 'Febri Purnama',
-        value: 'Febri Purnama',
-      ),
-      DropdownItem(
-        label: 'Ahmad Suganda',
-        value: 'Ahmad Suganda',
-      ),
-      DropdownItem(
-        label: 'Steve Erawan',
-        value: 'Steve Erawan',
-      ),
-      DropdownItem(
-        label: 'Bambang Sutardjo',
-        value: 'Bambang Sutardjo',
-      ),
-      DropdownItem(
-        label: 'Erwin Sirajagukguk',
-        value: 'Erwin Surajagukguk',
-      ),
-      DropdownItem(
-        label: 'Vera Setiawati',
-        value: 'Vera Setiawati',
-      ),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Schedule'),
@@ -130,75 +144,80 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                       Icons.calendar_today,
                       size: 25,
                     ),
-                    onPressed: () {
-                      _selectDate(context);
+                    onPressed: () async {
+                      await _selectDate(context);
+                      _getInputByDate();
                     },
                   ),
                 ),
-                MultiDropdown<String>(
-                  items: items,
-                  controller: controller,
-                  enabled: true,
-                  searchEnabled: true,
-                  chipDecoration: const ChipDecoration(
-                    backgroundColor: Colors.yellow,
-                    wrap: true,
-                    runSpacing: 2,
-                    spacing: 10,
-                  ),
-                  fieldDecoration: FieldDecoration(
-                    hintText: 'Employees',
-                    hintStyle: const TextStyle(color: Colors.black87),
-                    // prefixIcon: const Icon(CupertinoIcons.flag),
-                    showClearIcon: false,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  dropdownDecoration: const DropdownDecoration(
-                    marginTop: 2,
-                    maxHeight: 500,
-                    header: Padding(
-                      padding: EdgeInsets.all(8),
-                      child: Text(
-                        'Select employees from the list',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                userItems.isEmpty
+                    ? CircularProgressIndicator()
+                    : MultiDropdown<String>(
+                        items: userItems,
+                        controller: controller,
+                        enabled: true,
+                        searchEnabled: true,
+                        chipDecoration: const ChipDecoration(
+                          backgroundColor: Colors.yellow,
+                          wrap: true,
+                          runSpacing: 2,
+                          spacing: 10,
                         ),
+                        fieldDecoration: FieldDecoration(
+                          hintText: 'Employees',
+                          hintStyle: const TextStyle(color: Colors.black87),
+                          // prefixIcon: const Icon(CupertinoIcons.flag),
+                          showClearIcon: false,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+                        dropdownDecoration: const DropdownDecoration(
+                          marginTop: 2,
+                          maxHeight: 500,
+                          header: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Text(
+                              'Select employees from the list',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        dropdownItemDecoration: DropdownItemDecoration(
+                          selectedIcon:
+                              const Icon(Icons.check_box, color: Colors.green),
+                          disabledIcon:
+                              Icon(Icons.lock, color: Colors.grey.shade300),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a value';
+                          }
+                          return null;
+                        },
+                        onSelectionChange: (selectedItems) {
+                          // debugPrint("OnSelectionChange: $selectedItems");
+                          selectedEmployees = selectedItems;
+                        },
                       ),
-                    ),
-                  ),
-                  dropdownItemDecoration: DropdownItemDecoration(
-                    selectedIcon:
-                        const Icon(Icons.check_box, color: Colors.green),
-                    disabledIcon: Icon(Icons.lock, color: Colors.grey.shade300),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a value';
-                    }
-                    return null;
-                  },
-                  onSelectionChange: (selectedItems) {
-                    debugPrint("OnSelectionChange: $selectedItems");
-                    selectedEmployees = selectedItems;
-                  },
-                ),
                 TextFormField(
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
                     label: Text('Notes'),
                   ),
+                  controller: _notesController,
                   onSaved: (notes) {
                     enteredNotes = notes ?? '';
                   },

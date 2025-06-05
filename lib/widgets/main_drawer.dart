@@ -29,7 +29,7 @@ class MainDrawer extends StatelessWidget {
                   width: 10,
                 ),
                 Text(
-                  'MyShiftSchedule',
+                  'Workflow Shift',
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge!

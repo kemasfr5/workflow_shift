@@ -10,16 +10,18 @@ class AddScheduleScreen extends StatefulWidget {
 }
 
 class _AddScheduleScreenState extends State<AddScheduleScreen> {
+  final List<String> shifts = ['Shift 1', 'Shift 2', 'Shift 3'];
   late DateTime selectedDate;
-  final TextEditingController _notesController = TextEditingController();
-
-  final _form = GlobalKey<FormState>();
-  final controller = MultiSelectController<String>();
-
+  var selectedShift = '';
+  var _isSelectedShift = false;
   List<DropdownItem<String>> userItems = [];
   List<String> selectedEmployees = [];
   String enteredNotes = '';
   var isAdding = false;
+
+  final TextEditingController _notesController = TextEditingController();
+  final _form = GlobalKey<FormState>();
+  final controller = MultiSelectController<String>();
 
   @override
   void initState() {
@@ -55,15 +57,29 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
   void _getInputByDate() async {
     final doc = await FirebaseFirestore.instance
         .collection('schedule')
-        .doc(selectedDate.toString())
+        .doc('$selectedDate $selectedShift')
         .get();
     final docMap = doc.data();
-    // debugPrint(docMap.toString());
+
     controller.clearAll();
     if (docMap != null) {
       controller.selectWhere(
-          (element) => docMap['employees'].contains(element.value));
+        (element) =>
+            docMap['employees'].contains(element.value) &&
+            docMap['shift'] == selectedShift,
+      );
       _notesController.text = docMap['notes'];
+
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Selected date and shift is already inputed. It will update previous data.'),
+        ),
+      );
     } else {
       _notesController.text = '';
     }
@@ -91,10 +107,11 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     try {
       await FirebaseFirestore.instance
           .collection('schedule')
-          .doc(selectedDate.toString())
+          .doc('$selectedDate $selectedShift')
           .set(
         {
           'date': selectedDate,
+          'shift': selectedShift,
           'employees': selectedEmployees,
           'notes': enteredNotes,
         },
@@ -146,9 +163,35 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                     ),
                     onPressed: () async {
                       await _selectDate(context);
-                      _getInputByDate();
+                      _isSelectedShift ? _getInputByDate() : null;
                     },
                   ),
+                ),
+                DropdownButtonFormField(
+                  decoration: InputDecoration(label: Text('Role')),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please choose role';
+                    }
+                    return null;
+                  },
+                  items: [
+                    for (var shift in shifts)
+                      DropdownMenuItem<String>(
+                        value: shift,
+                        child: Text(shift),
+                      ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      selectedShift = value!;
+                      _isSelectedShift = true;
+                      _getInputByDate();
+                    });
+                  },
+                ),
+                SizedBox(
+                  height: 16,
                 ),
                 userItems.isEmpty
                     ? CircularProgressIndicator()
@@ -211,6 +254,9 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                           selectedEmployees = selectedItems;
                         },
                       ),
+                SizedBox(
+                  height: 16,
+                ),
                 TextFormField(
                   maxLines: null,
                   keyboardType: TextInputType.multiline,

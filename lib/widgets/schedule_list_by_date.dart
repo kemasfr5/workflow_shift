@@ -9,15 +9,27 @@ class ScheduleListByDate extends StatelessWidget {
   const ScheduleListByDate({
     super.key,
     required this.date,
+    required this.scheduleData,
   });
 
   final DateTime date;
+  final List scheduleData;
 
   @override
   Widget build(BuildContext context) {
     final f = DateFormat('yyyy-MM-dd');
+    // print(scheduleData);
+
+    List getDataByShift(String shift) {
+      return scheduleData.where(
+        (doc) {
+          return doc['shift'] == shift;
+        },
+      ).toList();
+    }
+
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: EdgeInsets.only(top: 12),
       color: Theme.of(context).colorScheme.onSecondary,
       child: SingleChildScrollView(
         child: Column(
@@ -33,18 +45,21 @@ class ScheduleListByDate extends StatelessWidget {
               height: 16,
             ),
             ScheduleListByDateShift(
-              date: DateTime(date.year, date.month, date.day),
-              shift: '1',
+              date: date,
+              shift: 'Shift 1',
+              scheduleData: getDataByShift('Shift 1'),
               // color: Theme.of(context).colorScheme.onTertiary,
             ),
             ScheduleListByDateShift(
-              date: DateTime(date.year, date.month, date.day + 1),
-              shift: '2',
+              date: date,
+              shift: 'Shift 2',
+              scheduleData: getDataByShift('Shift 2'),
               // color: Theme.of(context).colorScheme.onPrimary,
             ),
             ScheduleListByDateShift(
-              date: DateTime(date.year, date.month, date.day + 1),
-              shift: '3',
+              date: date,
+              shift: 'Shift 3',
+              scheduleData: getDataByShift('Shift 3'),
               // color: Theme.of(context).colorScheme.onPrimaryFixedVariant,
             ),
           ],

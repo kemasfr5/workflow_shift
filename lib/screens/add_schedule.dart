@@ -89,7 +89,7 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
     final snapshot = await FirebaseFirestore.instance.collection('users').get();
     setState(() {
       userItems = snapshot.docs.map((doc) {
-        final String name = doc.data()['name'] ?? '';
+        final String name = doc.data()['name'];
         return DropdownItem<String>(label: name, value: name);
       }).toList();
     });
@@ -168,10 +168,10 @@ class _AddScheduleScreenState extends State<AddScheduleScreen> {
                   ),
                 ),
                 DropdownButtonFormField(
-                  decoration: InputDecoration(label: Text('Role')),
+                  decoration: InputDecoration(label: Text('Shift')),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please choose role';
+                      return 'Please choose shift';
                     }
                     return null;
                   },

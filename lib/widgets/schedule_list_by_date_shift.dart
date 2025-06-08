@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
 class ScheduleListByDateShift extends StatelessWidget {
-  const ScheduleListByDateShift(
-      {super.key, required this.date, required this.shift});
+  const ScheduleListByDateShift({
+    super.key,
+    required this.date,
+    required this.shift,
+    required this.scheduleData,
+  });
 
   final DateTime date;
   final String shift;
+  final List scheduleData;
 
   @override
   Widget build(BuildContext context) {
+    final employees =
+        scheduleData.isNotEmpty ? scheduleData[0].data()['employees'] : null;
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -16,118 +23,74 @@ class ScheduleListByDateShift extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Text(
-              'Shift 1',
-              style: Theme.of(context).textTheme.titleMedium,
+              shift,
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: Colors.blue.shade900,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
           Expanded(
             child: Column(
               children: [
-                ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Kemas Fachir Raihan',
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
+                if (employees == null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.error,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue.shade200),
                       ),
-                      Text(
-                        'Manager',
-                        style: Theme.of(context).textTheme.titleSmall,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                'Data Empty',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Muhammad Rizky Alfiansyah',
-                          style: Theme.of(context).textTheme.bodyLarge,
+                if (employees != null)
+                  for (var employee in employees)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.blue.shade200),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                employee,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
+                            // Text(
+                            //   'Manager',
+                            //   style: Theme.of(context).textTheme.titleSmall,
+                            // ),
+                          ],
                         ),
                       ),
-                      Text(
-                        'Cashier',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  ),
-                ),
-                ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Andini Febrianti',
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16),
-                        child: Text(
-                          'Waiter',
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Sukanta Sudimoro',
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                      ),
-                      Text(
-                        'Waiter',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  ),
-                ),
-                ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Amelia Susilowati',
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                      ),
-                      Text(
-                        'Chef',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  ),
-                ),
-                ListTile(
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Aditya Nugraha',
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                      ),
-                      Text(
-                        'Chef',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
               ],
             ),
           )

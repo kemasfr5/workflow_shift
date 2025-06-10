@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class UserDetail extends StatelessWidget {
   const UserDetail({super.key, required this.data});
 
-  final data;
+  final QueryDocumentSnapshot data;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -14,7 +15,6 @@ class UserDetail extends StatelessWidget {
           padding: EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
-            // crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               CircleAvatar(

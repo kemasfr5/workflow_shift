@@ -18,9 +18,9 @@ class ScheduleTableByDate extends StatelessWidget {
     bool isSameDate(DateTime a, DateTime b) =>
         a.year == b.year && a.month == b.month && a.day == b.day;
 
-    for (var data in dataList) {
-      currentDate = data.data()['date'].toDate();
-      final employeesData = data.data()['employees'];
+    for (var doc in dataList) {
+      currentDate = doc.data()['date'].toDate();
+      final employeesData = doc.data()['employees'];
 
       if (prevDate != null && !isSameDate(currentDate!, prevDate)) {
         widgets.add(
@@ -32,7 +32,7 @@ class ScheduleTableByDate extends StatelessWidget {
       if (prevDate == null || !isSameDate(prevDate, currentDate!)) {
         widgets.add(
           Text(
-            f.format(data.data()['date'].toDate()),
+            f.format(doc.data()['date'].toDate()),
             style: Theme.of(context)
                 .textTheme
                 .titleMedium!
@@ -50,7 +50,7 @@ class ScheduleTableByDate extends StatelessWidget {
                 decoration: BoxDecoration(border: Border.all()),
                 alignment: Alignment.center,
                 child: Text(
-                  data.data()['shift'],
+                  doc.data()['shift'],
                   textAlign: TextAlign.center,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),

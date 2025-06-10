@@ -12,62 +12,66 @@ class ManageScheduleScreen extends StatefulWidget {
 
 class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
   final now = DateTime.now();
-  List schedulesData = [];
-
-  @override
-  void initState() {
-    super.initState();
-    getSchedules();
-  }
 
   @override
   void dispose() {
     super.dispose();
   }
 
-  void getSchedules() async {
-    var startDate = DateTime(now.year, now.month, now.day - 30);
+  Stream<QuerySnapshot> schedulesStream() {
+    var startDate = DateTime(now.year, now.month, now.day + 2);
     var endDate = DateTime(now.year, now.month, now.day + 30);
-    final snapshot = await FirebaseFirestore.instance
+    return FirebaseFirestore.instance
         .collection('schedule')
         .where('date', isGreaterThanOrEqualTo: startDate)
         .where('date', isLessThanOrEqualTo: endDate)
         .orderBy('date')
-        .get();
-    setState(() {
-      schedulesData = snapshot.docs;
-    });
+        .snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
-    print(schedulesData);
+    // print(schedulesData);
     var startDate = DateTime(now.year, now.month, now.day);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Manage Schedule'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AddScheduleScreen(),
-                ),
-              );
-            },
-            icon: Icon(Icons.add),
-          )
-        ],
-      ),
-      body: Container(
-        margin: EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: ScheduleTableByDate(
-            date: startDate,
-            dataList: schedulesData,
-          ),
+        appBar: AppBar(
+          title: Text('Manage Schedule'),
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AddScheduleScreen(),
+                  ),
+                );
+              },
+              icon: Icon(Icons.add),
+            )
+          ],
         ),
-      ),
-    );
+        body: StreamBuilder(
+          stream: schedulesStream(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return Center(
+                child: Text('Empty Data'),
+              );
+            }
+            return Container(
+              margin: EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                child: ScheduleTableByDate(
+                  date: startDate,
+                  dataList: snapshot.data!.docs,
+                ),
+              ),
+            );
+          },
+        ));
   }
 }

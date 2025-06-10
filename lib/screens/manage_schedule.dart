@@ -22,7 +22,7 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
 
     final now = DateTime.now();
     startDate = DateTime(now.year, now.month, now.day);
-    endDate = DateTime(now.year, now.month, now.day + 30);
+    endDate = startDate.add(Duration(days: 30));
   }
 
   @override
@@ -44,56 +44,59 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
     final f = DateFormat('yyyy-MM-dd');
     final now = DateTime.now();
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Manage Schedule'),
-          actions: [
-            IconButton(
+      appBar: AppBar(
+        title: Text('Manage Schedule'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AddScheduleScreen(),
+                ),
+              );
+            },
+            icon: Icon(Icons.add),
+          )
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            ElevatedButton.icon(
+              icon: Icon(Icons.calendar_month),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade100),
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => AddScheduleScreen(),
-                  ),
+                showCustomDateRangePicker(
+                  context,
+                  dismissible: true,
+                  minimumDate:
+                      DateTime.now().subtract(const Duration(days: 360)),
+                  maximumDate: DateTime.now().add(const Duration(days: 360)),
+                  endDate: null,
+                  startDate: null,
+                  backgroundColor: Colors.white,
+                  primaryColor: const Color.fromARGB(255, 0, 34, 94),
+                  onApplyClick: (start, end) {
+                    setState(() {
+                      endDate = end;
+                      startDate = start;
+                    });
+                  },
+                  onCancelClick: () {
+                    setState(() {
+                      startDate = DateTime(now.year, now.month, now.day);
+                      endDate = startDate.add(Duration(days: 30));
+                    });
+                  },
                 );
               },
-              icon: Icon(Icons.add),
-            )
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              ElevatedButton.icon(
-                  icon: Icon(Icons.calendar_month),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade100),
-                  onPressed: () {
-                    showCustomDateRangePicker(
-                      context,
-                      dismissible: true,
-                      minimumDate:
-                          DateTime.now().subtract(const Duration(days: 360)),
-                      maximumDate:
-                          DateTime.now().add(const Duration(days: 360)),
-                      endDate: startDate,
-                      startDate: startDate,
-                      backgroundColor: Colors.white,
-                      primaryColor: const Color.fromARGB(255, 0, 34, 94),
-                      onApplyClick: (start, end) {
-                        setState(() {
-                          endDate = end;
-                          startDate = start;
-                        });
-                      },
-                      onCancelClick: () {
-                        setState(() {
-                          startDate = DateTime(now.year, now.month, now.day);
-                          endDate = DateTime(now.year, now.month, now.day + 30);
-                        });
-                      },
-                    );
-                  },
-                  label: Text('${f.format(startDate)} - ${f.format(endDate)}')),
-              StreamBuilder(
+              label: Text('${f.format(startDate)} - ${f.format(endDate)}'),
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.7),
+              child: StreamBuilder(
                 stream: schedulesStream(startDate, endDate),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -115,8 +118,10 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
                   );
                 },
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

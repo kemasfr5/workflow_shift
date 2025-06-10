@@ -32,6 +32,7 @@ class _ScheduleSummaryScreenState extends State<ScheduleSummaryScreen> {
     return FirebaseFirestore.instance
         .collection('schedule')
         .where('date', isGreaterThanOrEqualTo: startDate)
+        .where('date', isLessThanOrEqualTo: startDate.add(Duration(days: 7)))
         .snapshots();
   }
 

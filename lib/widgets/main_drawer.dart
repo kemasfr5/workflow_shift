@@ -1,9 +1,36 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class MainDrawer extends StatelessWidget {
+class MainDrawer extends StatefulWidget {
   const MainDrawer({super.key, required this.onSelectScreen});
 
   final void Function(String identifier) onSelectScreen;
+
+  @override
+  State<MainDrawer> createState() => _MainDrawerState();
+}
+
+class _MainDrawerState extends State<MainDrawer> {
+  User? user;
+  Map userData = {};
+
+  void getUserData() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: user!.email)
+        .get();
+    setState(() {
+      userData = snapshot.docs[0].data();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    user = FirebaseAuth.instance.currentUser;
+    getUserData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +51,33 @@ class MainDrawer extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.calendar_month_outlined),
+                CircleAvatar(
+                  backgroundColor: Colors.grey,
+                  radius: 40,
+                  foregroundImage: userData.isNotEmpty
+                      ? NetworkImage(userData['image'])
+                      : null,
+                ),
                 SizedBox(
                   width: 10,
                 ),
-                Text(
-                  'Workflow Shift',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge!
-                      .copyWith(color: Theme.of(context).colorScheme.secondary),
-                ),
+                if (userData.isNotEmpty)
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          userData['name'],
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(userData['email']),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -42,35 +85,35 @@ class MainDrawer extends StatelessWidget {
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              onSelectScreen('Home');
+              widget.onSelectScreen('Home');
             },
           ),
           ListTile(
             leading: Icon(Icons.group_work),
             title: Text('Role'),
             onTap: () {
-              onSelectScreen('Role');
+              widget.onSelectScreen('Role');
             },
           ),
           ListTile(
             leading: Icon(Icons.group),
             title: Text('User'),
             onTap: () {
-              onSelectScreen('User');
+              widget.onSelectScreen('User');
             },
           ),
           ListTile(
             leading: Icon(Icons.schedule),
             title: Text('Schedule'),
             onTap: () {
-              onSelectScreen('Schedule');
+              widget.onSelectScreen('Schedule');
             },
           ),
           ListTile(
             leading: Icon(Icons.exit_to_app),
             title: Text('Sign Out'),
             onTap: () {
-              onSelectScreen('SignOut');
+              widget.onSelectScreen('SignOut');
             },
           ),
         ],

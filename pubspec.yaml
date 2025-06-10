@@ -38,11 +38,12 @@ dependencies:
   firebase_auth: ^5.5.4
   cloud_firestore: ^5.6.8
   uid: ^0.0.2
-  intl: ^0.20.2
+  intl: ^0.19.0
   image_picker: ^1.1.2
   firebase_storage: ^12.4.6
   http: ^1.4.0
   multi_dropdown: ^3.0.1
+  custom_date_range_picker: ^1.1.0
 
 dev_dependencies:
   flutter_test:

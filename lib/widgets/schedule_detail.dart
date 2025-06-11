@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class ScheduleDetail extends StatelessWidget {
   const ScheduleDetail({super.key, required this.data});
 
-  final QueryDocumentSnapshot data;
+  final Map data;
   @override
   Widget build(BuildContext context) {
     final f = DateFormat('yyyy-MM-dd');

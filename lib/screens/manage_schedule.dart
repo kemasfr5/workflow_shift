@@ -112,25 +112,9 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
                   }
                   return Container(
                     margin: EdgeInsets.all(16),
-                    child: GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
-                            ),
-                          ),
-                          context: context,
-                          builder: (context) {
-                            return ScheduleDetail(data: snapshot.data!.docs[0]);
-                          },
-                        );
-                      },
-                      child: ScheduleTableByDate(
-                        date: startDate,
-                        dataList: snapshot.data!.docs,
-                      ),
+                    child: ScheduleTableByDate(
+                      date: startDate,
+                      dataList: snapshot.data!.docs,
                     ),
                   );
                 },

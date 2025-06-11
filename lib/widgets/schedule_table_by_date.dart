@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:workflow_shift/widgets/schedule_detail.dart';
 
 class ScheduleTableByDate extends StatelessWidget {
   const ScheduleTableByDate(
@@ -42,41 +43,57 @@ class ScheduleTableByDate extends StatelessWidget {
       }
 
       widgets.add(
-        IntrinsicHeight(
-          child: Row(
-            children: [
-              Container(
-                width: 80,
-                decoration: BoxDecoration(border: Border.all()),
-                alignment: Alignment.center,
-                child: Text(
-                  doc.data()['shift'],
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+              isScrollControlled: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(20),
                 ),
               ),
-              Expanded(
-                child: Container(
+              context: context,
+              builder: (context) {
+                return ScheduleDetail(data: doc.data());
+              },
+            );
+          },
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                Container(
+                  width: 80,
                   decoration: BoxDecoration(border: Border.all()),
-                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                  child: Column(
-                    children: [
-                      for (var employee in employeesData.asMap().entries)
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 1),
-                          decoration: BoxDecoration(
-                            border: employee.key == employeesData.length
-                                ? Border(bottom: BorderSide())
-                                : null,
-                          ),
-                          child: Text(employee.value),
-                        ),
-                    ],
+                  alignment: Alignment.center,
+                  child: Text(
+                    doc.data()['shift'],
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(border: Border.all()),
+                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                    child: Column(
+                      children: [
+                        for (var employee in employeesData.asMap().entries)
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(vertical: 1),
+                            decoration: BoxDecoration(
+                              border: employee.key == employeesData.length
+                                  ? Border(bottom: BorderSide())
+                                  : null,
+                            ),
+                            child: Text(employee.value),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );

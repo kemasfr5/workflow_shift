@@ -3,6 +3,7 @@ import 'package:custom_date_range_picker/custom_date_range_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:workflow_shift/screens/add_schedule.dart';
+import 'package:workflow_shift/widgets/schedule_detail.dart';
 import 'package:workflow_shift/widgets/schedule_table_by_date.dart';
 
 class ManageScheduleScreen extends StatefulWidget {
@@ -111,9 +112,25 @@ class _ManageScheduleScreenState extends State<ManageScheduleScreen> {
                   }
                   return Container(
                     margin: EdgeInsets.all(16),
-                    child: ScheduleTableByDate(
-                      date: startDate,
-                      dataList: snapshot.data!.docs,
+                    child: GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          context: context,
+                          builder: (context) {
+                            return ScheduleDetail(data: snapshot.data!.docs[0]);
+                          },
+                        );
+                      },
+                      child: ScheduleTableByDate(
+                        date: startDate,
+                        dataList: snapshot.data!.docs,
+                      ),
                     ),
                   );
                 },
